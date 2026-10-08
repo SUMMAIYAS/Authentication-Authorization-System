@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authentication & Authorization System</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            margin: 0;
+            background: #f2f5f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 400px;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        }
+
+        h1, h2 {
+            text-align: center;
+            color: #222;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 10px;
+            border: none;
+            border-radius: 6px;
+            background: #1976d2;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background: #125aa0;
+        }
+
+        .link {
+            text-align: center;
+            margin-top: 15px;
+            color: #1976d2;
+            cursor: pointer;
+        }
+
+        .message {
+            text-align: center;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        .dashboard {
+            display: none;
+        }
+
+        .box {
+            padding: 15px;
+            margin: 10px 0;
+            background: #f1f5f9;
+            border-radius: 8px;
+        }
+
+        .logout {
+            background: #d32f2f;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- LOGIN -->
+    <div id="loginPage">
+
+        <h1>Login</h1>
+
+        <input type="text" id="loginUsername"
+               placeholder="Enter username">
+
+        <input type="password" id="loginPassword"
+               placeholder="Enter password">
+
+        <button onclick="login()">Login</button>
+
+        <div id="loginMessage" class="message"></div>
+
+        <div class="link" onclick="showRegister()">
+            Create New Account
+        </div>
+
+    </div>
+
+
+    <!-- REGISTRATION -->
+    <div id="registerPage" style="display:none;">
+
+        <h1>Registration</h1>
+
+        <input type="text" id="regName"
+               placeholder="Enter full name">
+
+        <input type="text" id="regUsername"
+               placeholder="Enter username">
+
+        <input type="password" id="regPassword"
+               placeholder="Enter password">
+
+        <select id="regRole">
+            <option value="student">Student</option>
+            <option value="admin">Admin</option>
+        </select>
+
+        <button onclick="register()">Register</button>
+
+        <div id="registerMessage" class="message"></div>
+
+        <div class="link" onclick="showLogin()">
+            Already have an account? Login
+        </div>
+
+    </div>
+
+
+    <!-- STUDENT DASHBOARD -->
+    <div id="studentDashboard" class="dashboard">
+
+        <h2>Student Dashboard</h2>
+
+        <div class="box">
+            <h3>Welcome Student</h3>
+            <p>You have successfully logged in.</p>
+            <p><b>Role:</b> Student</p>
+        </div>
+
+        <div class="box">
+            <h3>Student Access</h3>
+            <p>View Profile</p>
+            <p>View Complaints</p>
+            <p>Submit Complaint</p>
+        </div>
+
+        <button class="logout" onclick="logout()">
+            Logout
+        </button>
+
+    </div>
+
+
+    <!-- ADMIN DASHBOARD -->
+    <div id="adminDashboard" class="dashboard">
+
+        <h2>Admin Dashboard</h2>
+
+        <div class="box">
+            <h3>Welcome Admin</h3>
+            <p>You have successfully logged in.</p>
+            <p><b>Role:</b> Admin</p>
+        </div>
+
+        <div class="box">
+            <h3>Admin Access</h3>
+            <p>Manage Users</p>
+            <p>Manage Complaints</p>
+            <p>View Reports</p>
+        </div>
+
+        <button class="logout" onclick="logout()">
+            Logout
+        </button>
+
+    </div>
+
+</div>
+
+
+<script>
+
+    // Show Registration Page
+    function showRegister() {
+
+        document.getElementById("loginPage").style.display = "none";
+        document.getElementById("registerPage").style.display = "block";
+
+    }
+
+
+    // Show Login Page
+    function showLogin() {
+
+        document.getElementById("registerPage").style.display = "none";
+        document.getElementById("loginPage").style.display = "block";
+
+    }
+
+
+    // Registration
+    function register() {
+
+        let name = document.getElementById("regName").value;
+        let username = document.getElementById("regUsername").value;
+        let password = document.getElementById("regPassword").value;
+        let role = document.getElementById("regRole").value;
+
+        if (name === "" || username === "" || password === "") {
+
+            document.getElementById("registerMessage").innerText =
+                "Please fill all fields.";
+
+            return;
+        }
+
+        let user = {
+            name: name,
+            username: username,
+            password: password,
+            role: role
+        };
+
+        localStorage.setItem("user", JSON.stringify(user));
+
+        document.getElementById("registerMessage").innerText =
+            "Registration successful!";
+
+        setTimeout(function() {
+            showLogin();
+        }, 1000);
+    }
+
+
+    // Login
+    function login() {
+
+        let username =
+            document.getElementById("loginUsername").value;
+
+        let password =
+            document.getElementById("loginPassword").value;
+
+        let storedUser =
+            JSON.parse(localStorage.getItem("user"));
+
+        if (storedUser === null) {
+
+            document.getElementById("loginMessage").innerText =
+                "No registered user found.";
+
+            return;
+        }
+
+        if (
+            username === storedUser.username &&
+            password === storedUser.password
+        ) {
+
+            // Create demo JWT-style token
+            let token = btoa(
+                JSON.stringify({
+                    username: storedUser.username,
+                    role: storedUser.role,
+                    loginTime: new Date().toISOString()
+                })
+            );
+
+            localStorage.setItem("jwtToken", token);
+
+            document.getElementById("loginPage").style.display = "none";
+
+            if (storedUser.role === "admin") {
+
+                document.getElementById("adminDashboard")
+                    .style.display = "block";
+
+            } else {
+
+                document.getElementById("studentDashboard")
+                    .style.display = "block";
+            }
+
+        } else {
+
+            document.getElementById("loginMessage").innerText =
+                "Invalid username or password.";
+        }
+    }
+
+
+    // Logout
+    function logout() {
+
+        localStorage.removeItem("jwtToken");
+
+        document.getElementById("studentDashboard")
+            .style.display = "none";
+
+        document.getElementById("adminDashboard")
+            .style.display = "none";
+
+        document.getElementById("loginPage")
+            .style.display = "block";
+
+        document.getElementById("loginMessage").innerText =
+            "Logged out successfully.";
+    }
+
+</script>
+
+</body>
+</html>
